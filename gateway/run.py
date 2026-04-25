@@ -814,11 +814,17 @@ class GatewayRunner:
                     "inactivity or a scheduled daily reset. The conversation context "
                     "will be cleared after this turn.\n\n"
                     "Review the conversation above and:\n"
-                    "1. Save any important facts, preferences, or decisions to memory "
-                    "(user profile or your notes) that would be useful in future sessions.\n"
-                    "2. If you discovered a reusable workflow or solved a non-trivial "
-                    "problem, consider saving it as a skill.\n"
-                    "3. If nothing is worth saving, that's fine — just skip.\n\n"
+                    "1. Save ONLY durable cross-session facts to memory (user profile or your notes). "
+                    "Use a conservative admission bar: useful in many future sessions, still true later, "
+                    "short declarative fact, and not better stored elsewhere.\n"
+                    "2. Do NOT save thread-local decisions, temporary plans/specs, in-progress task state, "
+                    "or one-off workflow details to always-on memory.\n"
+                    "3. Route information to the right home: user profile facts -> USER memory; "
+                    "durable environment/setup facts -> MEMORY; reusable procedures -> skills; "
+                    "governance/routing rules -> HERMES context.\n"
+                    "4. Use session_search for prior-conversation details instead of promoting them to "
+                    "permanent memory.\n"
+                    "5. If nothing meets the bar, skip memory writes.\n\n"
                 )
 
                 if _current_memory:

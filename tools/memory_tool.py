@@ -515,19 +515,27 @@ MEMORY_SCHEMA = {
     "description": (
         "Save durable information to persistent memory that survives across sessions. "
         "Memory is injected into future turns, so keep it compact and focused on facts "
-        "that will still matter later.\n\n"
-        "WHEN TO SAVE (do this proactively, don't wait to be asked):\n"
-        "- User corrects you or says 'remember this' / 'don't do that again'\n"
-        "- User shares a preference, habit, or personal detail (name, role, timezone, coding style)\n"
-        "- You discover something about the environment (OS, installed tools, project structure)\n"
-        "- You learn a convention, API quirk, or workflow specific to this user's setup\n"
-        "- You identify a stable fact that will be useful again in future sessions\n\n"
-        "PRIORITY: User preferences and corrections > environment facts > procedural knowledge. "
-        "The most valuable memory prevents the user from having to repeat themselves.\n\n"
-        "Do NOT save task progress, session outcomes, completed-work logs, or temporary TODO "
-        "state to memory; use session_search to recall those from past transcripts.\n"
-        "If you've discovered a new way to do something, solved a problem that could be "
-        "necessary later, save it as a skill with the skill tool.\n\n"
+        "that will still matter later. Use a conservative admission bar.\n\n"
+        "SAVE ONLY IF ALL ARE TRUE:\n"
+        "- Useful across many future sessions (not just this thread)\n"
+        "- Likely still true after this conversation ends\n"
+        "- Expressible as a short declarative fact\n"
+        "- Not better stored in USER profile, HERMES governance, skills, or session history\n\n"
+        "WHEN TO SAVE (proactively):\n"
+        "- User provides durable profile facts/preferences likely to recur\n"
+        "- You learn durable environment facts (hosts, tools, setup constraints)\n"
+        "- You discover stable conventions that repeatedly affect future work\n\n"
+        "DO NOT SAVE TO ALWAYS-ON MEMORY:\n"
+        "- Task progress, completed-work logs, or temporary TODO state\n"
+        "- Thread-local decisions, draft plans, or one-off workflow choices\n"
+        "- Procedural steps/workflows that belong in skills\n"
+        "- Governance/routing rules that belong in HERMES.md\n"
+        "- Self-instructions or conversational scaffolding\n\n"
+        "ROUTING:\n"
+        "- target='user': durable user profile facts/preferences\n"
+        "- target='memory': durable environment/setup facts and stable conventions\n"
+        "- use skill_manage for reusable procedures\n"
+        "- use session_search for prior-conversation details instead of permanent memory\n\n"
         "TWO TARGETS:\n"
         "- 'user': who the user is -- name, role, preferences, communication style, pet peeves\n"
         "- 'memory': your notes -- environment facts, project conventions, tool quirks, lessons learned\n\n"
@@ -578,7 +586,6 @@ registry.register(
     check_fn=check_memory_requirements,
     emoji="🧠",
 )
-
 
 
 

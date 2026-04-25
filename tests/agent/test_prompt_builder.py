@@ -39,8 +39,10 @@ from hermes_cli.nous_subscription import NousFeatureState, NousSubscriptionFeatu
 
 class TestGuidanceConstants:
     def test_memory_guidance_discourages_task_logs(self):
-        assert "durable facts" in MEMORY_GUIDANCE
+        assert "conservative admission bar" in MEMORY_GUIDANCE
+        assert "across many future sessions" in MEMORY_GUIDANCE
         assert "Do NOT save task progress" in MEMORY_GUIDANCE
+        assert "thread-local decisions" in MEMORY_GUIDANCE
         assert "session_search" in MEMORY_GUIDANCE
         assert "like a diary" not in MEMORY_GUIDANCE
         assert ">80%" not in MEMORY_GUIDANCE
@@ -1032,6 +1034,5 @@ class TestOpenAIModelExecutionGuidance:
 # =========================================================================
 # Budget warning history stripping
 # =========================================================================
-
 
 

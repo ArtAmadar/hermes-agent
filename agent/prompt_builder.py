@@ -143,16 +143,16 @@ DEFAULT_AGENT_IDENTITY = (
 
 MEMORY_GUIDANCE = (
     "You have persistent memory across sessions. Save durable facts using the memory "
-    "tool: user preferences, environment details, tool quirks, and stable conventions. "
-    "Memory is injected into every turn, so keep it compact and focused on facts that "
-    "will still matter later.\n"
-    "Prioritize what reduces future user steering — the most valuable memory is one "
-    "that prevents the user from having to correct or remind you again. "
-    "User preferences and recurring corrections matter more than procedural task details.\n"
-    "Do NOT save task progress, session outcomes, completed-work logs, or temporary TODO "
-    "state to memory; use session_search to recall those from past transcripts. "
-    "If you've discovered a new way to do something, solved a problem that could be "
-    "necessary later, save it as a skill with the skill tool."
+    "tool with a conservative admission bar. Save only facts that are likely useful "
+    "across many future sessions, still true after this thread, and expressible as short "
+    "declarative facts.\n"
+    "Route facts to the right place: durable user profile/preferences to USER memory, "
+    "durable environment/setup facts to MEMORY, reusable procedures to skills, and "
+    "governance/routing rules to HERMES context.\n"
+    "Do NOT save task progress, session outcomes, completed-work logs, temporary TODO "
+    "state, thread-local decisions, or one-off workflow details to always-on memory.\n"
+    "Use session_search for prior-conversation details instead of promoting them to "
+    "permanent memory."
 )
 
 SESSION_SEARCH_GUIDANCE = (
