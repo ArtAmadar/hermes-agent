@@ -1170,7 +1170,7 @@ class TestMatrixEncryptedSendFallback:
 
 class TestMatrixMegolmEventHandling:
     @pytest.mark.asyncio
-    async def test_encrypted_event_buffers_for_retry(self):
+    async def test_encrypted_event_buffers_for_retry(self, caplog):
         """_on_encrypted_event should buffer undecrypted events for retry."""
         adapter = _make_adapter()
         adapter._user_id = "@bot:example.org"
@@ -1182,13 +1182,24 @@ class TestMatrixMegolmEventHandling:
         fake_event.event_id = "$encrypted_event"
         fake_event.sender = "@alice:example.org"
 
-        await adapter._on_encrypted_event(fake_event)
+        with caplog.at_level("DEBUG", logger="gateway.platforms.matrix"):
+            await adapter._on_encrypted_event(fake_event)
 
         # Should have buffered the event
         assert len(adapter._pending_megolm) == 1
         room_id, event, ts = adapter._pending_megolm[0]
         assert room_id == "!room:example.org"
         assert event is fake_event
+        assert any(
+            rec.levelname == "DEBUG"
+            and "queued for delayed decrypt retry" in rec.getMessage()
+            for rec in caplog.records
+        )
+        assert not any(
+            rec.levelname == "WARNING"
+            and "could not decrypt event" in rec.getMessage()
+            for rec in caplog.records
+        )
 
     @pytest.mark.asyncio
     async def test_encrypted_event_buffer_capped(self):
@@ -1821,6 +1832,35 @@ class TestMatrixRoomManagement:
         result = await self.adapter.create_room()
         assert result is None
 
+    @pytest.mark.asyncio
+    async def test_add_room_to_space(self):
+        mock_client = MagicMock()
+        mock_client.send_state_event = AsyncMock(return_value="$evt")
+        self.adapter._client = mock_client
+        self.adapter._homeserver = "https://threadkeeper.amadar.xyz"
+
+        result = await self.adapter.add_room_to_space("!space:ex", "!room:ex")
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_remove_room_from_space(self):
+        mock_client = MagicMock()
+        mock_client.send_state_event = AsyncMock(return_value="$evt")
+        self.adapter._client = mock_client
+
+        result = await self.adapter.remove_room_from_space("!space:ex", "!room:ex")
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_set_room_parent_space(self):
+        mock_client = MagicMock()
+        mock_client.send_state_event = AsyncMock(return_value="$evt")
+        self.adapter._client = mock_client
+        self.adapter._homeserver = "https://threadkeeper.amadar.xyz"
+
+        result = await self.adapter.set_room_parent_space("!room:ex", "!space:ex")
+        assert result is True
+
 
 # ---------------------------------------------------------------------------
 # Presence
@@ -1852,5 +1892,3 @@ class TestMatrixPresence:
         self.adapter._client = None
         result = await self.adapter.set_presence("online")
         assert result is False
-
-

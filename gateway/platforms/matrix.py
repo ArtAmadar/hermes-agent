@@ -1392,15 +1392,15 @@ class MatrixAdapter(BasePlatformAdapter):
         await self.handle_message(msg_event)
 
     async def _on_encrypted_event(self, event: Any) -> None:
-        """Handle encrypted events that could not be auto-decrypted."""
+        """Buffer encrypted events for delayed decrypt retries."""
         room_id = str(getattr(event, "room_id", ""))
         event_id = str(getattr(event, "event_id", ""))
 
         if self._is_duplicate_event(event_id):
             return
 
-        logger.warning(
-            "Matrix: could not decrypt event %s in %s — buffering for retry",
+        logger.debug(
+            "Matrix: encrypted event %s in %s queued for delayed decrypt retry",
             event_id, room_id,
         )
 
@@ -1676,6 +1676,57 @@ class MatrixAdapter(BasePlatformAdapter):
             return True
         except Exception as exc:
             logger.warning("Matrix: invite error: %s", exc)
+            return False
+
+    async def add_room_to_space(self, space_id: str, room_id: str) -> bool:
+        """Add a child room to a Matrix space using m.space.child."""
+        if not self._client:
+            return False
+        try:
+            await self._client.send_state_event(
+                RoomID(space_id),
+                "m.space.child",
+                {"via": [self._homeserver.replace("https://", "").replace("http://", "")]},
+                state_key=room_id,
+            )
+            logger.info("Matrix: added room %s to space %s", room_id, space_id)
+            return True
+        except Exception as exc:
+            logger.warning("Matrix: add_room_to_space error: %s", exc)
+            return False
+
+    async def set_room_parent_space(self, room_id: str, space_id: str) -> bool:
+        """Set a room's parent space using m.space.parent."""
+        if not self._client:
+            return False
+        try:
+            await self._client.send_state_event(
+                RoomID(room_id),
+                "m.space.parent",
+                {"canonical": True, "via": [self._homeserver.replace("https://", "").replace("http://", "")]},
+                state_key=space_id,
+            )
+            logger.info("Matrix: set parent space %s on room %s", space_id, room_id)
+            return True
+        except Exception as exc:
+            logger.warning("Matrix: set_room_parent_space error: %s", exc)
+            return False
+
+    async def remove_room_from_space(self, space_id: str, room_id: str) -> bool:
+        """Archive room from space by deleting m.space.child state event."""
+        if not self._client:
+            return False
+        try:
+            await self._client.send_state_event(
+                RoomID(space_id),
+                "m.space.child",
+                {},
+                state_key=room_id,
+            )
+            logger.info("Matrix: removed room %s from space %s", room_id, space_id)
+            return True
+        except Exception as exc:
+            logger.warning("Matrix: remove_room_from_space error: %s", exc)
             return False
 
     # ------------------------------------------------------------------
