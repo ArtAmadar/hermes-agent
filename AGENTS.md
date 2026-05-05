@@ -8,6 +8,19 @@ Instructions for AI coding assistants and developers working on the hermes-agent
 source venv/bin/activate  # ALWAYS activate before running Python
 ```
 
+## Local Deployment Context (Morrigan)
+
+- Infra stack repo: `/home/neurone/ansible/infra`
+- Runtime service: `inventory/docker-services/ai-companion-morrigan`
+- Deployment host: `rightbrain` (`192.168.0.201`)
+- Active release lineage: `release/v2026.4.16-morrigan.*`
+- Feature branch for Matrix session rooms: `feature/morrigan-space-rooms`
+
+When changing Morrigan runtime behavior, update both repos in the same pass:
+
+1. This source repo (`/home/neurone/src/hermes-agent`) for code/tests.
+2. Infra repo (`/home/neurone/ansible/infra`) for compose tag/env/docs/deploy wiring.
+
 ## Project Structure
 
 ```
